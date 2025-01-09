@@ -1,6 +1,6 @@
 import { conform, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
-import { ActionFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { Form, Link, redirect, useActionData } from "@remix-run/react";
 import { z } from "zod";
 import { safeRedirect } from "remix-utils/safe-redirect";
@@ -12,6 +12,9 @@ import {
   NameSchema,
   PasswordSchema,
 } from "~/utils/user-validation";
+import { prisma } from "~/utils/db.server";
+import { requireAnonymous, signup } from "~/utils/auth.server";
+import { sessionStorage } from "~/utils/session.server";
 
 const SignupFormSchema = z
   .object({
@@ -30,25 +33,31 @@ const SignupFormSchema = z
     }
   });
 
+export async function loader({ request }: LoaderFunctionArgs) {
+  await requireAnonymous(request);
+  return null;
+}
+
 export async function action({ request }: ActionFunctionArgs) {
+  await requireAnonymous(request);
   const formData = await request.formData();
   const submission = await parse(formData, {
     schema: SignupFormSchema.superRefine(async (data, ctx) => {
-      // const existingUser = await prisma.user.findUnique({
-      //   where: { username: data.username },
-      //   select: { id: true },
-      // });
-      // if (existingUser) {
-      //   ctx.addIssue({
-      //     path: ["username"],
-      //     code: z.ZodIssueCode.custom,
-      //     message: "A user already exists with this username",
-      //   });
-      //   return;
-      // }
+      const existingUser = await prisma.user.findUnique({
+        where: { email: data.email },
+        select: { id: true },
+      });
+      if (existingUser) {
+        ctx.addIssue({
+          path: ["email"],
+          code: z.ZodIssueCode.custom,
+          message: "A user already exists with this email",
+        });
+        return;
+      }
     }).transform(async (data) => {
-      // const user = await signup(data);
-      return { ...data, user: null };
+      const user = await signup(data);
+      return { ...data, user };
     }),
     async: true,
   });
@@ -61,7 +70,16 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const { user } = submission.value;
 
-  return redirect(safeRedirect("/"));
+  const cookieSession = await sessionStorage.getSession(
+    request.headers.get("cookie")
+  );
+  cookieSession.set("userId", user.id);
+
+  return redirect(safeRedirect("/"), {
+    headers: {
+      "set-cookie": await sessionStorage.commitSession(cookieSession),
+    },
+  });
 }
 
 export default function SignupPage() {
@@ -146,7 +164,6 @@ export default function SignupPage() {
             >
               Get started
             </StatusButton>
-            {/* TODO: show error message on toast */}
             {form.errorId && (
               <div className="mt-1.5 text-center">
                 <ErrorMessage errors={form.errors} id={form.errorId} />

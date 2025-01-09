@@ -1,31 +1,20 @@
 import { PrismaClient } from "@prisma/client";
 import { faker } from "@faker-js/faker";
-import { UniqueEnforcer } from "enforce-unique";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
-const uniqueUsernameEnforcer = new UniqueEnforcer();
+
+function createPassword(password: string = faker.internet.password()) {
+  return bcrypt.hashSync(password, 10);
+}
 
 function createUser() {
   const firstName = faker.person.firstName();
   const lastName = faker.person.lastName();
-  const username = uniqueUsernameEnforcer
-    .enforce(() => {
-      return (
-        faker.string.alphanumeric({ length: 2 }) +
-        "_" +
-        faker.internet.username({
-          firstName: firstName.toLowerCase(),
-          lastName: lastName.toLowerCase(),
-        })
-      );
-    })
-    .slice(0, 20)
-    .toLowerCase()
-    .replace(/[^a-z0-9_]/g, "_");
   return {
-    email: `${username}@acme.co`,
+    email: `${lastName}@eureka.co`,
     name: `${firstName} ${lastName}`,
-    username,
+    password: createPassword(lastName),
   };
 }
 
@@ -39,7 +28,7 @@ function createReview(revieweeName: string) {
 type Employee = {
   email: string;
   name: string;
-  username: string;
+  password: string;
   id?: string;
 };
 
@@ -90,8 +79,8 @@ async function main() {
 
   await prisma.user.create({
     data: {
-      email: "admin@acme.co",
-      username: "admin",
+      email: "admin@eureka.co",
+      password: createPassword("admin12345"),
       name: "Admin",
       createdReviews: {
         create: createdReviews.map((review) => ({

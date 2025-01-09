@@ -33,3 +33,35 @@ export function useIsPending({
     navigation.formMethod === formMethod
   );
 }
+
+export function singleton<Value>(name: string, value: () => Value): Value {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const yolo = global as any;
+  yolo.__singletons ??= {};
+  yolo.__singletons[name] ??= value();
+  return yolo.__singletons[name];
+}
+
+function combineHeaders(...headers: Array<ResponseInit["headers"] | null>) {
+  const combined = new Headers();
+  for (const header of headers) {
+    if (!header) continue;
+    for (const [key, value] of new Headers(header).entries()) {
+      combined.append(key, value);
+    }
+  }
+  return combined;
+}
+
+export function combineResponseInits(
+  ...responseInits: Array<ResponseInit | undefined>
+) {
+  let combined: ResponseInit = {};
+  for (const responseInit of responseInits) {
+    combined = {
+      ...responseInit,
+      headers: combineHeaders(combined.headers, responseInit?.headers),
+    };
+  }
+  return combined;
+}
