@@ -1,7 +1,7 @@
 import { conform, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { Form, Link, redirect, useActionData } from "@remix-run/react";
+import { ActionFunctionArgs } from "@remix-run/node";
+import { Form, json, Link, redirect, useActionData } from "@remix-run/react";
 import { safeRedirect } from "remix-utils/safe-redirect";
 import { z } from "zod";
 import { ErrorMessage, Field } from "~/components/Field";
@@ -15,11 +15,6 @@ const LoginFormSchema = z.object({
   email: EmailSchema,
   password: PasswordSchema,
 });
-
-export async function loader({ request }: LoaderFunctionArgs) {
-  await requireAnonymous(request);
-  return null;
-}
 
 export async function action({ request }: ActionFunctionArgs) {
   await requireAnonymous(request);
@@ -45,7 +40,7 @@ export async function action({ request }: ActionFunctionArgs) {
   delete submission.payload.password;
 
   if (!submission.value?.user) {
-    return Response.json({ status: "error", submission } as const, {
+    return json({ status: "error", submission } as const, {
       status: 400,
     });
   }
@@ -76,11 +71,10 @@ export default function LoginPage() {
     onValidate({ formData }) {
       return parse(formData, { schema: LoginFormSchema });
     },
-    shouldRevalidate: "onBlur",
   });
 
   return (
-    <main className="pt-16 container mx-auto flex justify-center">
+    <main className="pt-28 container mx-auto flex justify-center">
       <div className="max-w-sm flex-1">
         <div>
           <h1 className="text-3xl font-semibold text-center tracking-wide	">

@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+export const IdSchema = z
+  .string({ required_error: "ID is required" })
+  .regex(/^c[a-z0-9]{24}$/, { message: "Invalid CUID format" });
+
 export const PasswordSchema = z
   .string({ required_error: "Password is required" })
   .min(6, { message: "Password is too short" })

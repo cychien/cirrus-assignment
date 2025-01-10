@@ -1,4 +1,5 @@
 import {
+  json,
   Links,
   Meta,
   Outlet,
@@ -42,7 +43,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       })
     : null;
 
-  return Response.json({
+  return json({
     user,
     ENV: getClientEnv(),
   });

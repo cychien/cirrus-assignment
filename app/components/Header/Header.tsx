@@ -11,39 +11,13 @@ function Header() {
   const isLoggedIn = !!loggedInUser?.id;
 
   return (
-    <header className="isolate bg-white py-5">
+    <header className="isolate bg-white py-4">
       <NavigationMenu.Root className="container mx-auto flex items-center">
         <div className="flex items-center space-x-10">
           <a href="/">
             <span className="sr-only">Eureka</span>
             <Logo className="h-8" />
           </a>
-          {/* <NavigationMenu.List className="hidden lg:flex lg:space-x-8">
-            <NavigationMenu.Item>
-              <NavigationMenu.Link
-                href="#"
-                className="font-medium text-gray-700"
-              >
-                資源
-              </NavigationMenu.Link>
-            </NavigationMenu.Item>
-            <NavigationMenu.Item>
-              <NavigationMenu.Link
-                href="#"
-                className="font-medium text-gray-700"
-              >
-                案例分享
-              </NavigationMenu.Link>
-            </NavigationMenu.Item>
-            <NavigationMenu.Item>
-              <NavigationMenu.Link
-                href="#"
-                className="font-medium text-gray-700"
-              >
-                FAQ
-              </NavigationMenu.Link>
-            </NavigationMenu.Item>
-          </NavigationMenu.List> */}
         </div>
 
         <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-8">
@@ -59,10 +33,10 @@ function Header() {
             </Form>
           ) : (
             <>
-              <Link to="/login" className="font-medium text-gray-700">
+              <Link to="/login" className="font-medium text-gray-700 text-sm">
                 Log in
               </Link>
-              <Button size="lg">Sign up</Button>
+              <Button>Sign up</Button>
             </>
           )}
         </div>
@@ -110,32 +84,6 @@ function Header() {
                       </Dialog.Close>
                     </div>
                     <div className="divide-y divide-gray-100 px-[15px] pb-5 sm:px-6">
-                      {/* <NavigationMenu.List className="space-y-2 pb-6 pt-1">
-                      <NavigationMenu.Item>
-                        <NavigationMenu.Link
-                          href="#"
-                          className="-mx-3 block h-full rounded-lg px-3 py-2 font-medium text-gray-700 hover:bg-gray-50"
-                        >
-                          資源
-                        </NavigationMenu.Link>
-                      </NavigationMenu.Item>
-                      <NavigationMenu.Item>
-                        <NavigationMenu.Link
-                          href="#"
-                          className="-mx-3 block h-full rounded-lg px-3 py-2 font-medium text-gray-700 hover:bg-gray-50"
-                        >
-                          案例分享
-                        </NavigationMenu.Link>
-                      </NavigationMenu.Item>
-                      <NavigationMenu.Item>
-                        <NavigationMenu.Link
-                          href="#"
-                          className="-mx-3 block h-full rounded-lg px-3 py-2 font-medium text-gray-700 hover:bg-gray-50"
-                        >
-                          FAQ
-                        </NavigationMenu.Link>
-                      </NavigationMenu.Item>
-                    </NavigationMenu.List> */}
                       <div className="py-6">
                         <Link
                           to="/login"

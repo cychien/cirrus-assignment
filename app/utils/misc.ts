@@ -65,3 +65,17 @@ export function combineResponseInits(
   }
   return combined;
 }
+
+export function invariantResponse(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  condition: any,
+  message: string | (() => string),
+  responseInit?: ResponseInit
+): asserts condition {
+  if (!condition) {
+    throw new Response(typeof message === "function" ? message() : message, {
+      status: 400,
+      ...responseInit,
+    });
+  }
+}

@@ -1,43 +1,37 @@
 import { conform, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import { ActionFunctionArgs } from "@remix-run/node";
-import { Form, json, Link, redirect, useActionData } from "@remix-run/react";
-import { z } from "zod";
+import { Form, json, redirect, useActionData } from "@remix-run/react";
 import { safeRedirect } from "remix-utils/safe-redirect";
+import { z } from "zod";
 import { ErrorMessage, Field } from "~/components/Field";
 import { StatusButton } from "~/components/StatusButton";
+import { signup } from "~/utils/auth.server";
+import { prisma } from "~/utils/db.server";
 import { useIsPending } from "~/utils/misc";
 import {
   EmailSchema,
   NameSchema,
   PasswordSchema,
 } from "~/utils/user-validation";
-import { prisma } from "~/utils/db.server";
-import { requireAnonymous, signup } from "~/utils/auth.server";
-import { sessionStorage } from "~/utils/session.server";
 
-const SignupFormSchema = z
-  .object({
-    email: EmailSchema,
-    name: NameSchema,
-    password: PasswordSchema,
-    confirmPassword: PasswordSchema,
-  })
-  .superRefine(({ confirmPassword, password }, ctx) => {
-    if (confirmPassword !== password) {
-      ctx.addIssue({
-        path: ["confirmPassword"],
-        code: "custom",
-        message: "The passwords must match",
-      });
-    }
-  });
+export const handle = {
+  breadcrumb: {
+    name: "Add employee",
+    href: "/employees/new",
+  },
+};
+
+const NewEmployeeSchema = z.object({
+  email: EmailSchema,
+  name: NameSchema,
+  password: PasswordSchema,
+});
 
 export async function action({ request }: ActionFunctionArgs) {
-  await requireAnonymous(request);
   const formData = await request.formData();
   const submission = await parse(formData, {
-    schema: SignupFormSchema.superRefine(async (data, ctx) => {
+    schema: NewEmployeeSchema.superRefine(async (data, ctx) => {
       const existingUser = await prisma.user.findUnique({
         where: { email: data.email },
         select: { id: true },
@@ -63,44 +57,30 @@ export async function action({ request }: ActionFunctionArgs) {
     });
   }
 
-  const { user } = submission.value;
-
-  const cookieSession = await sessionStorage.getSession(
-    request.headers.get("cookie")
-  );
-  cookieSession.set("userId", user.id);
-
-  return redirect(safeRedirect("/"), {
-    headers: {
-      "set-cookie": await sessionStorage.commitSession(cookieSession),
-    },
-  });
+  return redirect(safeRedirect("/employees"));
 }
 
-export default function SignupPage() {
+export default function NewEmployeePage() {
   const actionData = useActionData<typeof action>();
   const isPending = useIsPending();
 
   const [form, fields] = useForm({
-    id: "signup-form",
-    constraint: getFieldsetConstraint(SignupFormSchema),
+    id: "new-employee-form",
+    constraint: getFieldsetConstraint(NewEmployeeSchema),
     lastSubmission: actionData?.submission,
     onValidate({ formData }) {
-      return parse(formData, { schema: SignupFormSchema });
+      return parse(formData, { schema: NewEmployeeSchema });
     },
   });
 
   return (
-    <main className="pt-28 container mx-auto flex justify-center">
-      <div className="max-w-sm flex-1">
-        <div>
-          <h1 className="text-3xl font-semibold text-center tracking-wide	">
-            Create an account
-          </h1>
-          <p className="mt-3 text-gray-600 text-center">Welcome to join us!</p>
-        </div>
+    <>
+      <div className="flex py-5 border-b border-gray-100 justify-between items-center">
+        <h1 className="text-3xl font-semibold">Add Employee</h1>
+      </div>
 
-        <Form method="POST" className="mt-8" {...form.props}>
+      <div className="py-8">
+        <Form method="POST" className="max-w-md" {...form.props}>
           <div className="space-y-6">
             <Field
               labelProps={{ children: "Email*" }}
@@ -133,18 +113,6 @@ export default function SignupPage() {
               errors={fields.password.errors}
               className="grid w-full items-center gap-1.5"
             />
-            <Field
-              labelProps={{
-                htmlFor: fields.confirmPassword.id,
-                children: "Confirm Password*",
-              }}
-              inputProps={{
-                ...conform.input(fields.confirmPassword, { type: "password" }),
-                placeholder: "Confirm Password",
-                autoComplete: "new-password",
-              }}
-              errors={fields.confirmPassword.errors}
-            />
           </div>
 
           <div>
@@ -152,9 +120,9 @@ export default function SignupPage() {
               type="submit"
               status={isPending ? "pending" : actionData?.status ?? "idle"}
               disabled={isPending}
-              className="mt-8 w-full"
+              className="mt-8"
             >
-              Get started
+              Add
             </StatusButton>
             {form.errorId && (
               <div className="mt-1.5 text-center">
@@ -162,18 +130,8 @@ export default function SignupPage() {
               </div>
             )}
           </div>
-
-          <p className="text-sm text-gray-600 mt-4 text-center">
-            Already have an account?
-            <Link
-              to="/login"
-              className="ml-1 text-gray-700 underline font-medium hover:text-gray-500"
-            >
-              Log in
-            </Link>
-          </p>
         </Form>
       </div>
-    </main>
+    </>
   );
 }
