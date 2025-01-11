@@ -21,3 +21,11 @@ export const EmailSchema = z
   .max(100, { message: "Email is too long" })
   // users can type the email in any case, but we store it in lowercase
   .transform((value) => value.toLowerCase());
+
+export const ReviewTitleSchema = z.string({
+  required_error: "Title is required",
+});
+
+export const ReviewContentSchema = z.string({
+  required_error: "Content is required",
+});

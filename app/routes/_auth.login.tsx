@@ -9,7 +9,7 @@ import { StatusButton } from "~/components/StatusButton";
 import { login, requireAnonymous } from "~/utils/auth.server";
 import { useIsPending } from "~/utils/misc";
 import { sessionStorage } from "~/utils/session.server";
-import { PasswordSchema, EmailSchema } from "~/utils/user-validation";
+import { PasswordSchema, EmailSchema } from "~/utils/validation";
 
 const LoginFormSchema = z.object({
   email: EmailSchema,

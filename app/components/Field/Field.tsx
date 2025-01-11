@@ -1,6 +1,7 @@
 import { useId } from "react";
 import { Input } from "../Input";
 import { Label } from "../Label";
+import { Textarea } from "../Textarea";
 
 type ListOfErrors = Array<string | null | undefined> | null | undefined;
 
@@ -49,5 +50,37 @@ function Field({
   );
 }
 
-export { Field, ErrorMessage };
+function TextareaField({
+  labelProps,
+  textareaProps,
+  errors,
+  className,
+}: {
+  labelProps: React.LabelHTMLAttributes<HTMLLabelElement>;
+  textareaProps: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+  errors?: ListOfErrors;
+  className?: string;
+}) {
+  const fallbackId = useId();
+  const id = textareaProps.id ?? textareaProps.name ?? fallbackId;
+  const errorId = errors?.length ? `${id}-error` : undefined;
+  return (
+    <div className={className}>
+      <Label htmlFor={id} {...labelProps} />
+      <Textarea
+        id={id}
+        aria-invalid={errorId ? true : undefined}
+        aria-describedby={errorId}
+        {...textareaProps}
+      />
+      {errorId ? (
+        <div className="mt-1">
+          <ErrorMessage id={errorId} errors={errors} />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+export { Field, TextareaField, ErrorMessage };
 export type { ListOfErrors };

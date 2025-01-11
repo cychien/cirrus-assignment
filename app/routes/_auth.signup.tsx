@@ -7,11 +7,7 @@ import { safeRedirect } from "remix-utils/safe-redirect";
 import { ErrorMessage, Field } from "~/components/Field";
 import { StatusButton } from "~/components/StatusButton";
 import { useIsPending } from "~/utils/misc";
-import {
-  EmailSchema,
-  NameSchema,
-  PasswordSchema,
-} from "~/utils/user-validation";
+import { EmailSchema, NameSchema, PasswordSchema } from "~/utils/validation";
 import { prisma } from "~/utils/db.server";
 import { requireAnonymous, signup } from "~/utils/auth.server";
 import { sessionStorage } from "~/utils/session.server";

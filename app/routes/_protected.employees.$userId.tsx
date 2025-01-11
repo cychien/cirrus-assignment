@@ -15,7 +15,7 @@ import { ErrorMessage, Field } from "~/components/Field";
 import { StatusButton } from "~/components/StatusButton";
 import { prisma } from "~/utils/db.server";
 import { invariantResponse, useIsPending } from "~/utils/misc";
-import { EmailSchema, IdSchema, NameSchema } from "~/utils/user-validation";
+import { EmailSchema, IdSchema, NameSchema } from "~/utils/validation";
 
 export const handle = {
   breadcrumb: {

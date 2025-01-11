@@ -18,6 +18,7 @@ const buttonVariant = cva(
         link: "text-gray-700 underline-offset-4 hover:enabled:underline hover:enabled:text-gray-900",
       },
       size: {
+        xs: "text-sm px-3 py-2 h-8",
         sm: "text-sm px-3.5 py-2 h-9",
         md: "text-sm px-4 py-2.5 h-10",
         lg: "px-[18px] py-2.5 h-11",

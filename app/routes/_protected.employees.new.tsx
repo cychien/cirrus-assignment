@@ -9,11 +9,7 @@ import { StatusButton } from "~/components/StatusButton";
 import { signup } from "~/utils/auth.server";
 import { prisma } from "~/utils/db.server";
 import { useIsPending } from "~/utils/misc";
-import {
-  EmailSchema,
-  NameSchema,
-  PasswordSchema,
-} from "~/utils/user-validation";
+import { EmailSchema, NameSchema, PasswordSchema } from "~/utils/validation";
 
 export const handle = {
   breadcrumb: {
