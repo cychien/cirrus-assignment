@@ -29,3 +29,7 @@ export const ReviewTitleSchema = z.string({
 export const ReviewContentSchema = z.string({
   required_error: "Content is required",
 });
+
+export const FeedbackContentSchema = z.string({
+  required_error: "Content is required",
+});

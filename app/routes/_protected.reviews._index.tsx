@@ -55,7 +55,7 @@ export default function ReviewsPage() {
   return (
     <>
       <div className="flex py-5 border-b border-gray-100 justify-between items-center">
-        <h1 className="text-3xl font-semibold">Performance Reviews</h1>
+        <h1 className="text-3xl font-semibold">Performance reviews</h1>
       </div>
 
       <div className="py-8">

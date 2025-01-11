@@ -26,6 +26,7 @@ import { getEmployees } from "~/utils/query";
 import { X } from "lucide-react";
 import { requireUserId } from "~/utils/auth.server";
 import { safeRedirect } from "remix-utils/safe-redirect";
+import { format } from "date-fns";
 
 export const handle = {
   breadcrumb: {
@@ -56,7 +57,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
       assignments: {
         select: {
           assignedTo: { select: { id: true, name: true } },
-          feedback: { select: { content: true } },
+          feedback: { select: { id: true, content: true, createdAt: true } },
         },
       },
     },
@@ -127,6 +128,15 @@ export default function EditReviewPage() {
     },
   });
 
+  const feedbacks = data.editingReview.assignments
+    .filter((a) => !!a.feedback)
+    .map((a) => ({
+      id: a.feedback?.id,
+      author: a.assignedTo.name,
+      content: a.feedback?.content,
+      createdAt: a.feedback?.createdAt,
+    }));
+
   return (
     <>
       <div className="flex py-5 border-b border-gray-100 justify-between items-center">
@@ -136,61 +146,83 @@ export default function EditReviewPage() {
       </div>
 
       <div className="py-8">
-        <Form method="POST" className="max-w-md" {...form.props}>
-          <input type="hidden" {...conform.input(fields.id)} />
-          <div className="space-y-6">
-            <Field
-              labelProps={{ children: "For*" }}
-              inputProps={{
-                value: data.editingReview.reviewee.name,
-                readOnly: true,
-                className: "read-only:bg-gray-50 read-only:cursor-not-allowed",
-              }}
-              className="grid w-full items-center gap-1.5"
-            />
-            <Field
-              labelProps={{ children: "Title*" }}
-              inputProps={{
-                ...conform.input(fields.title),
-                placeholder: "Enter review title",
-                autoFocus: true,
-              }}
-              errors={fields.title.errors}
-              className="grid w-full items-center gap-1.5"
-            />
-            <TextareaField
-              labelProps={{ children: "Content*" }}
-              textareaProps={{
-                ...conform.textarea(fields.content),
-                placeholder: "Enter review content",
-                className: "min-h-[200px]",
-              }}
-              errors={fields.content.errors}
-              className="grid w-full items-center gap-1.5"
-            />
-            <EmployeeAutoComplete
-              defaultAssignedTo={data.editingReview.assignments.map(
-                (a) => a.assignedTo
-              )}
-            />
-          </div>
+        <div className="flex space-x-20">
+          <Form method="POST" className="flex-1 max-w-md" {...form.props}>
+            <input type="hidden" {...conform.input(fields.id)} />
+            <div className="space-y-6">
+              <Field
+                labelProps={{ children: "For*" }}
+                inputProps={{
+                  value: data.editingReview.reviewee.name,
+                  readOnly: true,
+                  className:
+                    "read-only:bg-gray-50 read-only:cursor-not-allowed",
+                }}
+                className="grid w-full items-center gap-1.5"
+              />
+              <Field
+                labelProps={{ children: "Title*" }}
+                inputProps={{
+                  ...conform.input(fields.title),
+                  placeholder: "Enter review title",
+                  autoFocus: true,
+                }}
+                errors={fields.title.errors}
+                className="grid w-full items-center gap-1.5"
+              />
+              <TextareaField
+                labelProps={{ children: "Content*" }}
+                textareaProps={{
+                  ...conform.textarea(fields.content),
+                  placeholder: "Enter review content",
+                  className: "min-h-[200px]",
+                }}
+                errors={fields.content.errors}
+                className="grid w-full items-center gap-1.5"
+              />
+              <EmployeeAutoComplete
+                defaultAssignedTo={data.editingReview.assignments.map(
+                  (a) => a.assignedTo
+                )}
+              />
+            </div>
 
-          <div>
-            <StatusButton
-              type="submit"
-              status={isPending ? "pending" : actionData?.status ?? "idle"}
-              disabled={isPending}
-              className="mt-8"
-            >
-              Update
-            </StatusButton>
-            {form.errorId && (
-              <div className="mt-1.5 text-center">
-                <ErrorMessage errors={form.errors} id={form.errorId} />
-              </div>
-            )}
-          </div>
-        </Form>
+            <div>
+              <StatusButton
+                type="submit"
+                status={isPending ? "pending" : actionData?.status ?? "idle"}
+                disabled={isPending}
+                className="mt-8"
+              >
+                Update
+              </StatusButton>
+              {form.errorId && (
+                <div className="mt-1.5 text-center">
+                  <ErrorMessage errors={form.errors} id={form.errorId} />
+                </div>
+              )}
+            </div>
+          </Form>
+
+          {feedbacks.length > 0 && (
+            <div className="flex-1 max-w-xs space-y-2">
+              {feedbacks.map((feedback) => (
+                <div
+                  key={feedback.id}
+                  className="text-sm border border-gray-200 shadow-sm p-3 rounded-lg"
+                >
+                  <div className="flex justify-between items-center">
+                    <Avatar name={feedback.author} size={28} />
+                    <div className="text-gray-400 text-xs">
+                      {format(feedback.createdAt ?? "", "yyyy/MM/dd")}
+                    </div>
+                  </div>
+                  <p className="mt-3 text-gray-700">{feedback.content}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

@@ -2,11 +2,11 @@ import { Outlet } from "@remix-run/react";
 
 export const handle = {
   breadcrumb: {
-    name: "Performance reviews",
-    href: "/reviews",
+    name: "Review requests",
+    href: "/review-requests",
   },
 };
 
-export default function ReviewsPage() {
+export default function ReviewRequestsPage() {
   return <Outlet />;
 }

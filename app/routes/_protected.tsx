@@ -23,7 +23,7 @@ function SubHeader() {
   const location = useLocation();
 
   return (
-    <NavigationMenu.Root className="border-t-2 border-b-2 border-gray-100 py-3">
+    <NavigationMenu.Root className="border-t-2 border-b-2 border-gray-100 py-3 sticky top-[72px] bg-white">
       <NavigationMenu.List className="container mx-auto flex space-x-1">
         <NavigationMenu.Item>
           <NavigationMenu.Link
@@ -51,6 +51,20 @@ function SubHeader() {
             )}
           >
             Performance reviews
+          </NavigationMenu.Link>
+        </NavigationMenu.Item>
+        <NavigationMenu.Item>
+          <NavigationMenu.Link
+            href="/review-requests"
+            className={cn(
+              "font-medium px-3 py-2 hover:bg-gray-50 rounded-md text-gray-700 text-sm",
+              {
+                "bg-gray-50 text-gray-900":
+                  location.pathname.startsWith("/review-requests"),
+              }
+            )}
+          >
+            Review requests
           </NavigationMenu.Link>
         </NavigationMenu.Item>
       </NavigationMenu.List>

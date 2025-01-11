@@ -11,7 +11,7 @@ function Header() {
   const isLoggedIn = !!loggedInUser?.id;
 
   return (
-    <header className="isolate bg-white py-4">
+    <header className="isolate bg-white py-4 sticky top-0">
       <NavigationMenu.Root className="container mx-auto flex items-center">
         <div className="flex items-center space-x-10">
           <a href="/">

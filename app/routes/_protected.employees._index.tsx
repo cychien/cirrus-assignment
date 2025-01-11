@@ -1,6 +1,7 @@
 import type { MetaFunction } from "@remix-run/node";
 import { json, Link, useLoaderData } from "@remix-run/react";
 import { Pencil, Plus } from "lucide-react";
+import { Avatar } from "~/components/Avatar";
 import { buttonVariant } from "~/components/Button";
 import { prisma } from "~/utils/db.server";
 import { cn } from "~/utils/misc";
@@ -46,10 +47,16 @@ export default function EmployeesPage() {
           {data.users.map((user) => (
             <div
               key={user.id}
-              className="pretty-shadow rounded p-4 relative group hover:bg-gray-50 transition-colors"
+              className="pretty-shadow rounded-md p-4 relative group hover:bg-gray-50 transition-colors"
             >
-              <div className="text-sm font-medium">{user.name}</div>
-              <div className="text-xs text-gray-500 mt-1">{user.email}</div>
+              <div className="flex flex-start space-x-3">
+                <Avatar name={user.name} size={28} />
+                <div>
+                  <div className="text-sm font-medium">{user.name}</div>
+                  <div className="text-xs text-gray-500 mt-1">{user.email}</div>
+                </div>
+              </div>
+
               <Link
                 to={`/employees/${user.id}`}
                 className="p-2 bg-gray-200/70 rounded-full absolute top-2 right-2 hidden group-hover:inline-block hover:bg-gray-200 text-gray-500 hover:text-gray-900 transition-colors"
