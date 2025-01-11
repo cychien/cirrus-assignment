@@ -66,6 +66,7 @@ export async function signup({
       email: email.toLowerCase(),
       name,
       password: hashedPassword,
+      roles: { connect: { name: "employee" } },
     },
   });
 

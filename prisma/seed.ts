@@ -47,7 +47,7 @@ async function main() {
   for (const employee of employees) {
     const result = await prisma.user.create({
       select: { id: true },
-      data: employee,
+      data: { ...employee, roles: { connect: { name: "employee" } } },
     });
     employee.id = result.id;
   }
@@ -82,6 +82,7 @@ async function main() {
       email: "admin@eureka.co",
       password: createPassword("admin12345"),
       name: "Admin",
+      roles: { connect: { name: "admin" } },
       createdReviews: {
         create: createdReviews.map((review) => ({
           title: review.title,
