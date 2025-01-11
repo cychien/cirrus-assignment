@@ -1,4 +1,4 @@
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, Link, useLoaderData } from "@remix-run/react";
 import { Check, CircleDashed } from "lucide-react";
 import { Avatar } from "~/components/Avatar";
@@ -17,13 +17,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { prisma } from "~/utils/db.server";
 import { cn } from "~/utils/misc";
 import { requireUserWithRole } from "~/utils/permissions.server";
-
-export const meta: MetaFunction = () => {
-  return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
-  ];
-};
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requireUserWithRole(request, "admin");

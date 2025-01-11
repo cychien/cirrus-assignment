@@ -7,7 +7,11 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
-import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
+import type {
+  LinksFunction,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from "@remix-run/node";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import "./tailwind.css";
@@ -17,6 +21,13 @@ import { sessionStorage } from "./utils/session.server";
 import { prisma } from "./utils/db.server";
 import { TooltipProvider } from "./components/Tooltip";
 import { GeneralErrorBoundary } from "./components/ErrorBoundry";
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Eureka Internal System" },
+    { name: "description", content: `Welcome to Eureka` },
+  ];
+};
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
