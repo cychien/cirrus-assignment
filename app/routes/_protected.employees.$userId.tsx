@@ -15,6 +15,10 @@ import { ErrorMessage, Field } from "~/components/Field";
 import { StatusButton } from "~/components/StatusButton";
 import { prisma } from "~/utils/db.server";
 import { invariantResponse, useIsPending } from "~/utils/misc";
+import {
+  requireUserWithPermission,
+  requireUserWithRole,
+} from "~/utils/permissions.server";
 import { EmailSchema, IdSchema, NameSchema } from "~/utils/validation";
 
 export const handle = {
@@ -39,7 +43,9 @@ const DeleteEmployeeSchema = z.object({
   id: z.string(),
 });
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  await requireUserWithRole(request, "admin");
+
   const user = await prisma.user.findUnique({
     where: { id: params.userId },
     select: {
@@ -61,9 +67,11 @@ export async function action({ request }: ActionFunctionArgs) {
   const intent = formData.get("intent");
   switch (intent) {
     case editEmployeeIntent: {
+      await requireUserWithPermission(request, "update:user");
       return employeeUpdateAction({ formData });
     }
     case deleteEmployeeIntent: {
+      await requireUserWithPermission(request, "delete:user");
       return deleteEmployeeAction({ formData });
     }
     default: {

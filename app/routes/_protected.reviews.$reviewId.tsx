@@ -27,6 +27,10 @@ import { X } from "lucide-react";
 import { requireUserId } from "~/utils/auth.server";
 import { safeRedirect } from "remix-utils/safe-redirect";
 import { format } from "date-fns";
+import {
+  requireUserWithPermission,
+  requireUserWithRole,
+} from "~/utils/permissions.server";
 
 export const handle = {
   breadcrumb: {
@@ -41,7 +45,9 @@ const ReviewSchema = z.object({
   content: ReviewContentSchema,
 });
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  await requireUserWithRole(request, "admin");
+
   const review = await prisma.performanceReview.findUnique({
     where: { id: params.reviewId },
     select: {
@@ -71,6 +77,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
+  await requireUserWithPermission(request, "update:review");
+
   await requireUserId(request);
   const formData = await request.formData();
   const assignedTo = (formData.getAll("assigned-to") ?? []) as string[];

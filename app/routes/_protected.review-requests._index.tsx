@@ -2,12 +2,12 @@ import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { Avatar } from "~/components/Avatar";
 import { buttonVariant } from "~/components/Button";
-import { requireUserId } from "~/utils/auth.server";
 import { prisma } from "~/utils/db.server";
 import { cn } from "~/utils/misc";
+import { requireUserWithRole } from "~/utils/permissions.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request);
+  const userId = await requireUserWithRole(request, "employee");
 
   const reviewRequests = await prisma.performanceReview.findMany({
     select: {

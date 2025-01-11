@@ -13,6 +13,8 @@ import {
   BreadcrumbSeparator,
 } from "~/components/Breadcrumb";
 import { z } from "zod";
+import { userHasRole } from "~/utils/permissions";
+import { useUser } from "~/utils/user";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requireUserId(request);
@@ -21,52 +23,60 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 function SubHeader() {
   const location = useLocation();
+  const user = useUser();
+  const isAdmin = userHasRole(user, "admin");
 
   return (
     <NavigationMenu.Root className="border-t-2 border-b-2 border-gray-100 py-3 sticky top-[72px] bg-white">
       <NavigationMenu.List className="container mx-auto flex space-x-1">
-        <NavigationMenu.Item>
-          <NavigationMenu.Link
-            href="/employees"
-            className={cn(
-              "font-medium px-3 py-2 hover:bg-gray-50 rounded-md text-gray-700 text-sm",
-              {
-                "bg-gray-50 text-gray-900":
-                  location.pathname.startsWith("/employees"),
-              }
-            )}
-          >
-            Employees
-          </NavigationMenu.Link>
-        </NavigationMenu.Item>
-        <NavigationMenu.Item>
-          <NavigationMenu.Link
-            href="/reviews"
-            className={cn(
-              "font-medium px-3 py-2 hover:bg-gray-50 rounded-md text-gray-700 text-sm",
-              {
-                "bg-gray-50 text-gray-900":
-                  location.pathname.startsWith("/reviews"),
-              }
-            )}
-          >
-            Performance reviews
-          </NavigationMenu.Link>
-        </NavigationMenu.Item>
-        <NavigationMenu.Item>
-          <NavigationMenu.Link
-            href="/review-requests"
-            className={cn(
-              "font-medium px-3 py-2 hover:bg-gray-50 rounded-md text-gray-700 text-sm",
-              {
-                "bg-gray-50 text-gray-900":
-                  location.pathname.startsWith("/review-requests"),
-              }
-            )}
-          >
-            Review requests
-          </NavigationMenu.Link>
-        </NavigationMenu.Item>
+        {isAdmin && (
+          <NavigationMenu.Item>
+            <NavigationMenu.Link
+              href="/employees"
+              className={cn(
+                "font-medium px-3 py-2 hover:bg-gray-100 rounded-md text-gray-700 text-sm",
+                {
+                  "bg-gray-100 text-gray-900":
+                    location.pathname.startsWith("/employees"),
+                }
+              )}
+            >
+              Employees
+            </NavigationMenu.Link>
+          </NavigationMenu.Item>
+        )}
+        {isAdmin && (
+          <NavigationMenu.Item>
+            <NavigationMenu.Link
+              href="/reviews"
+              className={cn(
+                "font-medium px-3 py-2 hover:bg-gray-100 rounded-md text-gray-700 text-sm",
+                {
+                  "bg-gray-100 text-gray-900":
+                    location.pathname.startsWith("/reviews"),
+                }
+              )}
+            >
+              Performance reviews
+            </NavigationMenu.Link>
+          </NavigationMenu.Item>
+        )}
+        {!isAdmin && (
+          <NavigationMenu.Item>
+            <NavigationMenu.Link
+              href="/review-requests"
+              className={cn(
+                "font-medium px-3 py-2 hover:bg-gray-100 rounded-md text-gray-700 text-sm",
+                {
+                  "bg-gray-100 text-gray-900":
+                    location.pathname.startsWith("/review-requests"),
+                }
+              )}
+            >
+              Review requests
+            </NavigationMenu.Link>
+          </NavigationMenu.Item>
+        )}
       </NavigationMenu.List>
     </NavigationMenu.Root>
   );

@@ -1,10 +1,11 @@
-import type { MetaFunction } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, Link, useLoaderData } from "@remix-run/react";
 import { Pencil, Plus } from "lucide-react";
 import { Avatar } from "~/components/Avatar";
 import { buttonVariant } from "~/components/Button";
 import { prisma } from "~/utils/db.server";
 import { cn } from "~/utils/misc";
+import { requireUserWithRole } from "~/utils/permissions.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -13,9 +14,12 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export async function loader() {
+export async function loader({ request }: LoaderFunctionArgs) {
+  await requireUserWithRole(request, "admin");
+
   const users = await prisma.user.findMany({
     select: { id: true, name: true, email: true },
+    where: { roles: { some: { name: "employee" } } },
     orderBy: { createdAt: "asc" },
   });
 

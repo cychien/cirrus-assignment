@@ -26,6 +26,10 @@ import { useQuery } from "@tanstack/react-query";
 import { getEmployees } from "~/utils/query";
 import { Avatar } from "~/components/Avatar";
 import { X } from "lucide-react";
+import {
+  requireUserWithPermission,
+  requireUserWithRole,
+} from "~/utils/permissions.server";
 
 export const handle = {
   breadcrumb: {
@@ -41,6 +45,8 @@ const NewReviewSchema = z.object({
 });
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  await requireUserWithRole(request, "admin");
+
   const url = new URL(request.url);
   const employeeId = url.searchParams.get("employeeId");
 
@@ -61,6 +67,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
+  await requireUserWithPermission(request, "create:review");
+
   const userId = await requireUserId(request);
   const formData = await request.formData();
   const assignedTo = (formData.getAll("assigned-to") ?? []) as string[];

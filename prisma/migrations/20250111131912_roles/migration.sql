@@ -65,14 +65,14 @@ INSERT INTO Permission VALUES('cm5s847oq0004ymfbap52s5q3','update','user','own',
 INSERT INTO Permission VALUES('cm5s847ou0005ymfbp3e30gnn','update','user','any',1736602208238,1736602208238);
 INSERT INTO Permission VALUES('cm5s847ox0006ymfbocl2f8vp','delete','user','own',1736602208241,1736602208241);
 INSERT INTO Permission VALUES('cm5s847oz0007ymfbinj8py4j','delete','user','any',1736602208243,1736602208243);
-INSERT INTO Permission VALUES('cm5s847p10008ymfbt1zi5uqu','create','reviews','own',1736602208246,1736602208246);
-INSERT INTO Permission VALUES('cm5s847p30009ymfbev8mhf5f','create','reviews','any',1736602208248,1736602208248);
-INSERT INTO Permission VALUES('cm5s847p6000aymfblwgg8jpc','read','reviews','own',1736602208250,1736602208250);
-INSERT INTO Permission VALUES('cm5s847p8000bymfb0evu47wu','read','reviews','any',1736602208252,1736602208252);
-INSERT INTO Permission VALUES('cm5s847pa000cymfbeb2petsu','update','reviews','own',1736602208254,1736602208254);
-INSERT INTO Permission VALUES('cm5s847pc000dymfbamxizzk8','update','reviews','any',1736602208256,1736602208256);
-INSERT INTO Permission VALUES('cm5s847pf000eymfbl11hs2s2','delete','reviews','own',1736602208259,1736602208259);
-INSERT INTO Permission VALUES('cm5s847ph000fymfb9kwh76o8','delete','reviews','any',1736602208261,1736602208261);
+INSERT INTO Permission VALUES('cm5s847p10008ymfbt1zi5uqu','create','review','own',1736602208246,1736602208246);
+INSERT INTO Permission VALUES('cm5s847p30009ymfbev8mhf5f','create','review','any',1736602208248,1736602208248);
+INSERT INTO Permission VALUES('cm5s847p6000aymfblwgg8jpc','read','review','own',1736602208250,1736602208250);
+INSERT INTO Permission VALUES('cm5s847p8000bymfb0evu47wu','read','review','any',1736602208252,1736602208252);
+INSERT INTO Permission VALUES('cm5s847pa000cymfbeb2petsu','update','review','own',1736602208254,1736602208254);
+INSERT INTO Permission VALUES('cm5s847pc000dymfbamxizzk8','update','review','any',1736602208256,1736602208256);
+INSERT INTO Permission VALUES('cm5s847pf000eymfbl11hs2s2','delete','review','own',1736602208259,1736602208259);
+INSERT INTO Permission VALUES('cm5s847ph000fymfb9kwh76o8','delete','review','any',1736602208261,1736602208261);
 
 INSERT INTO Role VALUES('cm5s847pl000gymfb7cziw75v','admin',1736602208265,1736602208265);
 INSERT INTO Role VALUES('cm5s847pp000hymfbcieyfxbh','employee',1736602208269,1736602208269);

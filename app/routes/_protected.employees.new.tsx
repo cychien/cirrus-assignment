@@ -9,6 +9,7 @@ import { StatusButton } from "~/components/StatusButton";
 import { signup } from "~/utils/auth.server";
 import { prisma } from "~/utils/db.server";
 import { useIsPending } from "~/utils/misc";
+import { requireUserWithPermission } from "~/utils/permissions.server";
 import { EmailSchema, NameSchema, PasswordSchema } from "~/utils/validation";
 
 export const handle = {
@@ -25,6 +26,8 @@ const NewEmployeeSchema = z.object({
 });
 
 export async function action({ request }: ActionFunctionArgs) {
+  await requireUserWithPermission(request, "create:user");
+
   const formData = await request.formData();
   const submission = await parse(formData, {
     schema: NewEmployeeSchema.superRefine(async (data, ctx) => {

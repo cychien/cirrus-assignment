@@ -6,12 +6,12 @@ import { z } from "zod";
 import { Avatar } from "~/components/Avatar";
 import { ErrorMessage, TextareaField } from "~/components/Field";
 import { StatusButton } from "~/components/StatusButton";
-import { requireUserId } from "~/utils/auth.server";
 import { prisma } from "~/utils/db.server";
 import { invariantResponse, useIsPending } from "~/utils/misc";
 import { useUser } from "~/utils/user";
 import { FeedbackContentSchema, IdSchema } from "~/utils/validation";
 import { format } from "date-fns";
+import { requireUserWithRole } from "~/utils/permissions.server";
 
 export const handle = {
   breadcrumb: {
@@ -26,7 +26,7 @@ const FeedbackSchema = z.object({
 });
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request);
+  const userId = await requireUserWithRole(request, "employee");
   const review = await prisma.performanceReview.findUnique({
     select: {
       id: true,
@@ -77,7 +77,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  await requireUserId(request);
+  await requireUserWithRole(request, "employee");
   const formData = await request.formData();
 
   const submission = await parse(formData, {
