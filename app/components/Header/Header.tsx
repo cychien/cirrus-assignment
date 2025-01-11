@@ -3,7 +3,8 @@ import * as NavigationMenu from "@radix-ui/react-navigation-menu";
 import { Form, Link } from "@remix-run/react";
 import { Menu, X } from "lucide-react";
 import { Logo } from "~/assets/Logo";
-import { Button } from "~/components/Button";
+import { Button, buttonVariant } from "~/components/Button";
+import { cn } from "~/utils/misc";
 import { useOptionalUser } from "~/utils/user";
 
 function Header() {
@@ -36,7 +37,12 @@ function Header() {
               <Link to="/login" className="font-medium text-gray-700 text-sm">
                 Log in
               </Link>
-              <Button>Sign up</Button>
+              <Link
+                to="/signup"
+                className={cn(buttonVariant(), "hover:bg-gray-900/80")}
+              >
+                Sign up
+              </Link>
             </>
           )}
         </div>
@@ -54,7 +60,12 @@ function Header() {
               </Button>
             </Form>
           ) : (
-            <Button>Sign up</Button>
+            <Link
+              to="/signup"
+              className={cn(buttonVariant(), "hover:bg-gray-900/80")}
+            >
+              Sign up
+            </Link>
           )}
           {!isLoggedIn && (
             <Dialog.Root>
