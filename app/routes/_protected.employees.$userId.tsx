@@ -177,7 +177,7 @@ export default function EditEmployeePage() {
               disabled={isPending}
               className="mt-8"
             >
-              Edit
+              Update
             </StatusButton>
             {form.errorId && (
               <div className="mt-1.5 text-center">
