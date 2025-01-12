@@ -13,6 +13,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       name: {
         startsWith: `%${query}%`,
       },
+      roles: { some: { name: "employee" } },
     },
     orderBy: { createdAt: "asc" },
   });

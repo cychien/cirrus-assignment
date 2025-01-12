@@ -31,6 +31,8 @@ import {
   requireUserWithPermission,
   requireUserWithRole,
 } from "~/utils/permissions.server";
+import { AuthenticityTokenInput } from "remix-utils/csrf/react";
+import { validateCSRF } from "~/utils/csrf.server";
 
 export const handle = {
   breadcrumb: {
@@ -78,11 +80,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export async function action({ request }: ActionFunctionArgs) {
   await requireUserWithPermission(request, "update:review");
-
   await requireUserId(request);
   const formData = await request.formData();
-  const assignedTo = (formData.getAll("assigned-to") ?? []) as string[];
+  await validateCSRF(formData, request.headers);
 
+  const assignedTo = (formData.getAll("assigned-to") ?? []) as string[];
   const submission = await parse(formData, {
     schema: ReviewSchema.transform(async (data) => {
       const review = await prisma.performanceReview.update({
@@ -156,6 +158,7 @@ export default function EditReviewPage() {
       <div className="py-8">
         <div className="flex space-x-20">
           <Form method="POST" className="flex-1 max-w-md" {...form.props}>
+            <AuthenticityTokenInput />
             <input type="hidden" {...conform.input(fields.id)} />
             <div className="space-y-6">
               <Field
@@ -192,6 +195,7 @@ export default function EditReviewPage() {
                 defaultAssignedTo={data.editingReview.assignments.map(
                   (a) => a.assignedTo
                 )}
+                revieweeId={data.editingReview.reviewee.id}
               />
             </div>
 
@@ -244,8 +248,10 @@ type AssignedTo = {
 
 function EmployeeAutoComplete({
   defaultAssignedTo,
+  revieweeId,
 }: {
   defaultAssignedTo: Array<{ id: string; name: string }>;
+  revieweeId: string;
 }) {
   const [searchValue, setSearchValue] = React.useState<string>("");
   const [selectedValues, setSelectedValues] = React.useState<AssignedTo[]>(() =>
@@ -266,6 +272,7 @@ function EmployeeAutoComplete({
 
   const options =
     data
+      ?.filter((d) => d.id !== revieweeId)
       ?.filter((d) => !selectedValues.find((s) => s.id === d.id))
       .map((d) => ({
         label: d.name,

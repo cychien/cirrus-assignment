@@ -12,6 +12,8 @@ import { useUser } from "~/utils/user";
 import { FeedbackContentSchema, IdSchema } from "~/utils/validation";
 import { format } from "date-fns";
 import { requireUserWithRole } from "~/utils/permissions.server";
+import { AuthenticityTokenInput } from "remix-utils/csrf/react";
+import { validateCSRF } from "~/utils/csrf.server";
 
 export const handle = {
   breadcrumb: {
@@ -79,6 +81,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 export async function action({ request }: ActionFunctionArgs) {
   await requireUserWithRole(request, "employee");
   const formData = await request.formData();
+  await validateCSRF(formData, request.headers);
 
   const submission = await parse(formData, {
     schema: FeedbackSchema.transform(async (data) => {
@@ -134,7 +137,9 @@ export default function ViewReviewPage() {
 
       <div className="py-8">
         <div className="flex space-x-20">
-          <p className="flex-1 max-w-md">{data.viewingReview.content}</p>
+          <p className="flex-1 max-w-md whitespace-pre-line">
+            {data.viewingReview.content}
+          </p>
 
           {data.viewingReview.assignments[0].feedback ? (
             <div className="flex-1 max-w-xs">
@@ -155,6 +160,7 @@ export default function ViewReviewPage() {
             </div>
           ) : (
             <Form method="POST" className="flex-1 max-w-xs" {...form.props}>
+              <AuthenticityTokenInput />
               <input type="hidden" {...conform.input(fields.assignmentId)} />
               <TextareaField
                 labelProps={{ children: "Feedback" }}

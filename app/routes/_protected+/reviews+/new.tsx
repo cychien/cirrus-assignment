@@ -14,7 +14,6 @@ import { z } from "zod";
 import { AutoComplete } from "~/components/AutoComplete";
 import { ErrorMessage, Field, TextareaField } from "~/components/Field";
 import { StatusButton } from "~/components/StatusButton";
-import { requireUserId } from "~/utils/auth.server";
 import { prisma } from "~/utils/db.server";
 import { invariantResponse, useIsPending } from "~/utils/misc";
 import {
@@ -30,6 +29,8 @@ import {
   requireUserWithPermission,
   requireUserWithRole,
 } from "~/utils/permissions.server";
+import { AuthenticityTokenInput } from "remix-utils/csrf/react";
+import { validateCSRF } from "~/utils/csrf.server";
 
 export const handle = {
   breadcrumb: {
@@ -67,12 +68,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  await requireUserWithPermission(request, "create:review");
-
-  const userId = await requireUserId(request);
+  const userId = await requireUserWithPermission(request, "create:review");
   const formData = await request.formData();
-  const assignedTo = (formData.getAll("assigned-to") ?? []) as string[];
+  await validateCSRF(formData, request.headers);
 
+  const assignedTo = (formData.getAll("assigned-to") ?? []) as string[];
   const submission = await parse(formData, {
     schema: NewReviewSchema.superRefine(async (data, ctx) => {
       const existingReview = await prisma.performanceReview.findUnique({
@@ -147,6 +147,7 @@ export default function NewReviewPage() {
 
       <div className="py-8">
         <Form method="POST" className="max-w-md" {...form.props}>
+          <AuthenticityTokenInput />
           <input type="hidden" {...conform.input(fields.for)} />
           <div className="space-y-6">
             <Field
@@ -178,7 +179,7 @@ export default function NewReviewPage() {
               errors={fields.content.errors}
               className="grid w-full items-center gap-1.5"
             />
-            <EmployeeAutoComplete />
+            <EmployeeAutoComplete revieweeId={loaderData.revieweeId} />
           </div>
 
           <div>
@@ -202,7 +203,7 @@ export default function NewReviewPage() {
   );
 }
 
-function EmployeeAutoComplete() {
+function EmployeeAutoComplete({ revieweeId }: { revieweeId: string }) {
   const [searchValue, setSearchValue] = React.useState<string>("");
   const [selectedValues, setSelectedValues] = React.useState<string[]>([]);
 
@@ -220,6 +221,7 @@ function EmployeeAutoComplete() {
 
   const options =
     data
+      ?.filter((d) => d.id !== revieweeId)
       ?.filter((d) => !selectedValues.includes(d.id))
       .map((d) => ({
         label: d.name,

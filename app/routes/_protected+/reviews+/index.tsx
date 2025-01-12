@@ -38,6 +38,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         },
       },
     },
+    where: { roles: { some: { name: "employee" } } },
     orderBy: { createdAt: "asc" },
   });
 

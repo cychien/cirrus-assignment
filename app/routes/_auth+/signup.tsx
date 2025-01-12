@@ -4,6 +4,7 @@ import { ActionFunctionArgs } from "@remix-run/node";
 import { Form, json, Link, redirect, useActionData } from "@remix-run/react";
 import { z } from "zod";
 import { safeRedirect } from "remix-utils/safe-redirect";
+import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { ErrorMessage, Field } from "~/components/Field";
 import { StatusButton } from "~/components/StatusButton";
 import { useIsPending } from "~/utils/misc";
@@ -11,6 +12,9 @@ import { EmailSchema, NameSchema, PasswordSchema } from "~/utils/validation";
 import { prisma } from "~/utils/db.server";
 import { requireAnonymous, signup } from "~/utils/auth.server";
 import { sessionStorage } from "~/utils/session.server";
+import { checkHoneypot } from "~/utils/honeypot.server";
+import { validateCSRF } from "~/utils/csrf.server";
+import { AuthenticityTokenInput } from "remix-utils/csrf/react";
 
 const SignupFormSchema = z
   .object({
@@ -32,6 +36,8 @@ const SignupFormSchema = z
 export async function action({ request }: ActionFunctionArgs) {
   await requireAnonymous(request);
   const formData = await request.formData();
+  await validateCSRF(formData, request.headers);
+  await checkHoneypot(formData);
   const submission = await parse(formData, {
     schema: SignupFormSchema.superRefine(async (data, ctx) => {
       const existingUser = await prisma.user.findUnique({
@@ -97,6 +103,8 @@ export default function SignupPage() {
         </div>
 
         <Form method="POST" className="mt-8" {...form.props}>
+          <AuthenticityTokenInput />
+          <HoneypotInputs />
           <div className="space-y-6">
             <Field
               labelProps={{ children: "Email*" }}

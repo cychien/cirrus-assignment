@@ -3,6 +3,8 @@ import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import { ActionFunctionArgs } from "@remix-run/node";
 import { Form, json, Link, redirect, useActionData } from "@remix-run/react";
 import { safeRedirect } from "remix-utils/safe-redirect";
+import { HoneypotInputs } from "remix-utils/honeypot/react";
+import { AuthenticityTokenInput } from "remix-utils/csrf/react";
 import { z } from "zod";
 import { ErrorMessage, Field } from "~/components/Field";
 import { StatusButton } from "~/components/StatusButton";
@@ -10,6 +12,8 @@ import { login, requireAnonymous } from "~/utils/auth.server";
 import { useIsPending } from "~/utils/misc";
 import { sessionStorage } from "~/utils/session.server";
 import { PasswordSchema, EmailSchema } from "~/utils/validation";
+import { checkHoneypot } from "~/utils/honeypot.server";
+import { validateCSRF } from "~/utils/csrf.server";
 
 const LoginFormSchema = z.object({
   email: EmailSchema,
@@ -19,6 +23,8 @@ const LoginFormSchema = z.object({
 export async function action({ request }: ActionFunctionArgs) {
   await requireAnonymous(request);
   const formData = await request.formData();
+  await validateCSRF(formData, request.headers);
+  await checkHoneypot(formData);
   const submission = await parse(formData, {
     schema: () =>
       LoginFormSchema.transform(async (data, ctx) => {
@@ -86,6 +92,8 @@ export default function LoginPage() {
         </div>
 
         <Form method="POST" className="mt-8" {...form.props}>
+          <AuthenticityTokenInput />
+          <HoneypotInputs />
           <div className="space-y-6">
             <Field
               labelProps={{ children: "Email" }}

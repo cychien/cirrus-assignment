@@ -2,11 +2,13 @@ import { conform, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import { ActionFunctionArgs } from "@remix-run/node";
 import { Form, json, redirect, useActionData } from "@remix-run/react";
+import { AuthenticityTokenInput } from "remix-utils/csrf/react";
 import { safeRedirect } from "remix-utils/safe-redirect";
 import { z } from "zod";
 import { ErrorMessage, Field } from "~/components/Field";
 import { StatusButton } from "~/components/StatusButton";
 import { signup } from "~/utils/auth.server";
+import { validateCSRF } from "~/utils/csrf.server";
 import { prisma } from "~/utils/db.server";
 import { useIsPending } from "~/utils/misc";
 import { requireUserWithPermission } from "~/utils/permissions.server";
@@ -27,8 +29,8 @@ const NewEmployeeSchema = z.object({
 
 export async function action({ request }: ActionFunctionArgs) {
   await requireUserWithPermission(request, "create:user");
-
   const formData = await request.formData();
+  await validateCSRF(formData, request.headers);
   const submission = await parse(formData, {
     schema: NewEmployeeSchema.superRefine(async (data, ctx) => {
       const existingUser = await prisma.user.findUnique({
@@ -80,6 +82,7 @@ export default function NewEmployeePage() {
 
       <div className="py-8">
         <Form method="POST" className="max-w-md" {...form.props}>
+          <AuthenticityTokenInput />
           <div className="space-y-6">
             <Field
               labelProps={{ children: "Email*" }}

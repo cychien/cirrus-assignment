@@ -21,6 +21,10 @@ import { sessionStorage } from "./utils/session.server";
 import { prisma } from "./utils/db.server";
 import { TooltipProvider } from "./components/Tooltip";
 import { GeneralErrorBoundary } from "./components/ErrorBoundry";
+import { HoneypotProvider } from "remix-utils/honeypot/react";
+import { honeypot } from "./utils/honeypot.server";
+import { AuthenticityTokenProvider } from "remix-utils/csrf/react";
+import { csrf } from "./utils/csrf.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -43,6 +47,8 @@ export const links: LinksFunction = () => [
 ];
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  const [csrfToken, csrfCookieHeader] = await csrf.commitToken(request);
+  const honeyProps = await honeypot.getInputProps();
   const cookieSession = await sessionStorage.getSession(
     request.headers.get("cookie")
   );
@@ -69,10 +75,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
       })
     : null;
 
-  return json({
-    user,
-    ENV: getClientEnv(),
-  });
+  return json(
+    {
+      user,
+      honeyProps,
+      csrfToken,
+      ENV: getClientEnv(),
+    },
+    {
+      headers: csrfCookieHeader ? { "set-cookie": csrfCookieHeader } : {},
+    }
+  );
 }
 
 function Document({
@@ -118,11 +131,16 @@ function App() {
 }
 
 export default function AppWithProviders() {
+  const data = useLoaderData<typeof loader>();
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <App />
-      </TooltipProvider>
+      <HoneypotProvider {...data.honeyProps}>
+        <AuthenticityTokenProvider token={data.csrfToken}>
+          <TooltipProvider>
+            <App />
+          </TooltipProvider>
+        </AuthenticityTokenProvider>
+      </HoneypotProvider>
     </QueryClientProvider>
   );
 }

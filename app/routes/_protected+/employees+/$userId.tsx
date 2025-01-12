@@ -9,10 +9,12 @@ import {
   useLoaderData,
   useNavigation,
 } from "@remix-run/react";
+import { AuthenticityTokenInput } from "remix-utils/csrf/react";
 import { safeRedirect } from "remix-utils/safe-redirect";
 import { z } from "zod";
 import { ErrorMessage, Field } from "~/components/Field";
 import { StatusButton } from "~/components/StatusButton";
+import { validateCSRF } from "~/utils/csrf.server";
 import { prisma } from "~/utils/db.server";
 import { invariantResponse, useIsPending } from "~/utils/misc";
 import {
@@ -64,6 +66,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
+  await validateCSRF(formData, request.headers);
   const intent = formData.get("intent");
   switch (intent) {
     case editEmployeeIntent: {
@@ -113,6 +116,7 @@ export default function EditEmployeePage() {
       <div className="flex py-5 border-b border-gray-100 justify-between items-center">
         <h1 className="text-3xl font-semibold">Edit {data.editingUser.name}</h1>
         <Form method="post" className="flex items-center" {...deleteForm.props}>
+          <AuthenticityTokenInput />
           <input type="hidden" name="id" value={data.editingUser.id} />
           <StatusButton
             type="submit"
@@ -145,6 +149,7 @@ export default function EditEmployeePage() {
 
       <div className="py-8">
         <Form method="POST" className="max-w-md" {...form.props}>
+          <AuthenticityTokenInput />
           <input type="hidden" name="id" value={data.editingUser.id} />
           <div className="space-y-6">
             <Field
