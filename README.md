@@ -80,6 +80,8 @@ The `<AutoComplete />` component demonstrates communication via RESTful APIs, ty
 
 ## Relational Database Schema
 
+![CleanShot 2025-01-12 at 19 28 37@2x](https://github.com/user-attachments/assets/87acacfb-c2b3-402c-9a7a-766f6317a267)
+
 - A User owns one Performance Review (one-to-one).  
 - A User can write multiple Performance Reviews (one-to-many).  
 - A User can provide feedback on multiple Performance Reviews, and each Performance Review can receive feedback from multiple Users (many-to-many). So ther is a `Assignment` table links `User ID` and `Performance Review ID`.  
