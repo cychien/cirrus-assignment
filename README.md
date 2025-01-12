@@ -1,40 +1,110 @@
-# Welcome to Remix!
+# Cirrus Assignment
 
-- 📖 [Remix docs](https://remix.run/docs)
+[Demo](https://cirrus-hw.fly.dev/login)
 
-## Development
+Admin account: `admin@eureka.co` / `admin12345`  
+Employee account: `employee@eureka.co` / `employee12345`
 
-Run the dev server:
+## System Overview
 
-```shellscript
-npm run dev
-```
+An internal company management system focusing on people management and performance review feedback features.
 
-## Deployment
+### Role-Based Access Control
 
-First, build your app for production:
+The system defines two roles: `admin` and `employee`. Each role corresponds to a set of permissions used to validate requests for viewing and making changes.
 
-```sh
-npm run build
-```
+### Registration and Login
 
-Then run the app in production mode:
+Supports user registration and login. Newly registered users are assigned the `employee` role by default.
 
-```sh
-npm start
-```
+### People Management
 
-Now you'll need to pick a host to deploy it to.
+Admins can add, update, or delete employees. Newly added employees are automatically assigned the `employee` role.
 
-### DIY
+### Performance Reviews Management
 
-If you're familiar with deploying Node applications, the built-in Remix app server is production-ready.
+Admins can create performance reviews for employees, edit these reviews, and assign other employees to provide feedback.
 
-Make sure to deploy the output of `npm run build`
+### Review Requests Management
 
-- `build/server`
-- `build/client`
+Employees can provide feedback on performance reviews assigned to them by Admins. Employees can view the reviews they have been assigned and their own feedback. However, feedback from other employees remains hidden.
 
-## Styling
+## Tech Stack
 
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever css framework you prefer. See the [Vite docs on css](https://vitejs.dev/guide/features.html#css) for more information.
+### Frontend & Backend
+
+**Remix + Server-side Rendering**  
+- Considering there is no need for supporting multi-platform, colocating frontend and backend is faster for development.
+- Leverages Remix's `react-router` nested routes to reduce fetch waterfalls, allowing parallel data fetching on the server side.
+- Supports progressive enhancement, ensuring core functionality even in poor network conditions.
+- Server-side Rendering reduces JavaScript load, achieving faster FCP (First Contentful Paint) and TTI (Time To Interactive).
+
+The `<AutoComplete />` component demonstrates communication via RESTful APIs, typically used for pages requiring real-time updates. Depending on update frequency, `react-query` or WebSocket can be used. Advantages of `react-query` include:
+- Built-in app-wide memory cache to avoid redundant fetches.
+- Deduplication of same requests at a time , reducing server load.
+
+`react-query` integrates seamlessly with Server-side Rendering, enabling server-side data to populate the memory cache during React hydration for a better user experience.
+
+### Database
+
+**PostgreSQL (via Supabase)**  
+- Relational Database chosen due to low-frequency writes and modest data storage needs.
+- ACID compliance ensures data consistency and prevents concurrency issues (lock).
+- I assumed the user base would initially be small and that we wouldn't need a distributed system to handle high availability. If scaling becomes necessary, we can integrate database replicas and explore distributed deployments.
+
+**Prisma**  
+- Acts as an ORM, enabling flexibility in case of database changes without altering application code.
+- Includes migration tools for schema version control.
+
+### Auth
+
+**Cookie Session + CSRF**  
+- Stateless session management since there is no requirement for the server to actively log users out.
+
+### Types
+
+**TypeScript + Zod**  
+- TypeScript enables static type checking.
+- Zod validates and enforces types on external data, such as form data, API responses, or environment variables.
+
+### Styling
+
+**tailwindcss**  
+- Enables fast UI development.
+
+### Deployment
+
+**fly.io**  
+- Supports distributed deployments and edge computing to reduce latency.
+- Dockerfile-based deployments allow seamless integration with additional services.
+
+## Relational Database Schema
+
+- A User owns one Performance Review (one-to-one).  
+- A User can write multiple Performance Reviews (one-to-many).  
+- A User can provide feedback on multiple Performance Reviews, and each Performance Review can receive feedback from multiple Users (many-to-many). So ther is a `Assignment` table links `User ID` and `Performance Review ID`.  
+- `Assignment` links to a `Feedback` table (one-to-one).
+
+## Run Application Locally
+
+### Steps
+
+1. Rename the `migrations-for-sqlite` folder to `migrations` and replace the existing `migrations` folder in the `prisma` directory.
+
+2. Rename `.env.example` to `.env`.
+
+3. Run database migration & seed:
+   ```bash
+   npx prisma migrate dev
+   ```
+
+4. Start the application
+    ```bash
+    yarn dev
+    ```
+
+5. Access the application:
+   - `http://localhost:3000`
+
+6. Login Credentials for Testing:
+   - Admin: `admin@eureka.co` / `admin12345`
