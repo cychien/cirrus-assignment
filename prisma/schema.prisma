@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -44,9 +45,9 @@ model Assignment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  review       PerformanceReview @relation(fields: [reviewId], references: [id])
+  review       PerformanceReview @relation(fields: [reviewId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   reviewId     String
-  assignedTo   User              @relation(fields: [assignedToId], references: [id])
+  assignedTo   User              @relation(fields: [assignedToId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   assignedToId String
   feedback     Feedback?
 }
@@ -57,7 +58,7 @@ model Feedback {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   assignmentId String     @unique
 }
 
