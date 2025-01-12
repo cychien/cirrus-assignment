@@ -91,7 +91,7 @@ The `<AutoComplete />` component demonstrates communication via RESTful APIs, ty
 
 ### Steps
 
-1. Rename the `migrations-for-sqlite` folder to `migrations` and replace the existing `migrations` folder in the `prisma` directory.
+1. Rename the `prisma-for-sqlite` folder to `prisma` and replace the existing `prisma` folder.
 
 2. Rename `.env.example` to `.env`.
 
@@ -106,7 +106,7 @@ The `<AutoComplete />` component demonstrates communication via RESTful APIs, ty
     ```
 
 5. Access the application:
-   - `http://localhost:3000`
+   - `http://localhost:5173`
 
 6. Login Credentials for Testing:
    - Admin: `admin@eureka.co` / `admin12345`
