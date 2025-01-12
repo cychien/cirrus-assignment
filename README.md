@@ -29,6 +29,32 @@ Admins can create performance reviews for employees, edit these reviews, and ass
 
 Employees can provide feedback on performance reviews assigned to them by Admins. Employees can view the reviews they have been assigned and their own feedback. However, feedback from other employees remains hidden.
 
+## QPS & Storage estimations
+
+### Assumptions
+
+- Users
+   - There are 1 admin and 100 employees.
+- Actions per User a month: 
+   - An admin performs 100 * 3 actions a month (employees count, login, view performance review, create performance review).
+   - An employee performs 3 * 3 actions a month(average feedbacks needed to write, login, view performance review, create feedback).
+   - So there are about 1 * 300 + 100 * 9 = 1200 queries a month.
+   - Peak Factor: Traffic peaks during work hours, with 20% of monthly traffic concentrated in one hour.
+- Storage
+   - Each user has 4 performance reviews per year. Average review size (only estimate content storage here) is 300 bytes.
+   - Each performance review has 3 feedbacks. Average feedback size is 100 bytes.
+   - Data is stored for 5 years.
+
+### Estimations
+
+- Query per second (QPS) estimate
+   - QPS = 1200 / 30 / 24 / 3600 = 0.00046 QPS
+   - Peek QPS = 1200 * 120% / 3600 = 0.4 QPS
+- Storage
+   - Performance reviews: 100 people * 4 reviews a yesr * 300 bytes * 5 years = 600000 bytes = 600 kb
+   - Feedbacks: 100 people * 4 reviews a yesr * 3 feedbacks per review * 100 bytes * 5 years = 600000 bytes = 600 kb
+   - 5-year main content strage: 1200 kb = 1.2 mb
+
 ## Tech Stack
 
 ### Frontend & Backend
